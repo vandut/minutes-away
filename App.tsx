@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import type { LatLng } from 'leaflet';
 import type { Category, Point, IsochroneFetchResult } from './types';
@@ -39,12 +38,21 @@ const App: React.FC = () => {
   const [isAddPointModalOpen, setIsAddPointModalOpen] = useState<boolean>(false);
   const [newPointCoords, setNewPointCoords] = useState<LatLng | null>(null);
 
-  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
+  const [isApiKeyConfigured, setIsApiKeyConfigured] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    const key = window.localStorage.getItem(LOCALSTORAGE_ORS_API_KEY);
+    return !!(key && key.trim() !== '');
+  });
+
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true; // Default open if we can't check
+    const key = window.localStorage.getItem(LOCALSTORAGE_ORS_API_KEY);
+    return !(key && key.trim() !== '');
+  });
+
   const [currentApiMinuteCount, setCurrentApiMinuteCount] = useState<number>(0);
   const [currentApiDailyCount, setCurrentApiDailyCount] = useState<number>(0);
   
-  const [isApiKeyConfigured, setIsApiKeyConfigured] = useState<boolean>(false);
-
   const [isEditCategoryModalOpen, setIsEditCategoryModalOpen] = useState<boolean>(false);
   const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null);
 
@@ -57,17 +65,6 @@ const App: React.FC = () => {
   }>({ isOpen: false, title: '', message: '', onConfirmAction: null });
 
   const isSecondEffectInitialRun = useRef(true);
-
-  useEffect(() => {
-    const storedApiKey = localStorage.getItem(LOCALSTORAGE_ORS_API_KEY);
-    if (storedApiKey && storedApiKey.trim() !== '') {
-      setIsApiKeyConfigured(true);
-      setIsSettingsModalOpen(false); 
-    } else {
-      setIsApiKeyConfigured(false);
-      setIsSettingsModalOpen(true); 
-    }
-  }, []);
 
   useEffect(() => {
     setCategories(prevCategories =>

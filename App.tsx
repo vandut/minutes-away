@@ -460,7 +460,7 @@ const App: React.FC = () => {
           onDeletePoint={handleDeletePoint}
           onOpenEditCategoryModal={handleOpenEditCategoryModal}
         />
-        <main className="flex-1 relative z-0">
+        <main className="flex-1 h-full relative z-0">
           <MapComponent
             points={points}
             categories={categories}

@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Polygon, useMap, useMapEvents, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Polygon, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import type { Point, Category, IsochroneFetchResult } from '../types';
 import type * as GeoJSON from 'geojson'; // Import GeoJSON namespace
@@ -75,6 +75,7 @@ interface MapComponentProps {
   categories: Category[];
   isochrones: Record<string, IsochroneFetchResult>; // { [pointId]: { geojson?: GeoJSON.FeatureCollection, error?: string } }
   onMapClick: (latlng: L.LatLng) => void;
+  onEditPoint: (point: Point) => void;
 }
 
 // Function to get initial map state from localStorage or defaults
@@ -123,7 +124,7 @@ const transformGeoJsonPolygonToLeafletPositions = (rings: number[][][]): L.LatLn
   );
 };
 
-const MapComponent: React.FC<MapComponentProps> = ({ points, categories, isochrones, onMapClick }) => {
+const MapComponent: React.FC<MapComponentProps> = ({ points, categories, isochrones, onMapClick, onEditPoint }) => {
   return (
     <MapContainer center={initialMapView.center} zoom={initialMapView.zoom} scrollWheelZoom={true} className="h-full w-full">
       <TileLayer
@@ -141,12 +142,16 @@ const MapComponent: React.FC<MapComponentProps> = ({ points, categories, isochro
         const icon = createEmojiIcon(category.icon, category.color);
         
         return (
-          <Marker key={point.id} position={[point.lat, point.lng]} icon={icon}>
-            <Popup>
-              Category: {category.name} <br />
-              {point.name ? `Name: ${point.name}` : `Point ID: ${point.id.substring(0,6)}`} <br />
-              Coordinates: {point.lat.toFixed(4)}, {point.lng.toFixed(4)}
-            </Popup>
+          <Marker
+            key={point.id}
+            position={[point.lat, point.lng]}
+            icon={icon}
+            eventHandlers={{
+              click: () => {
+                onEditPoint(point);
+              },
+            }}
+          >
           </Marker>
         );
       })}

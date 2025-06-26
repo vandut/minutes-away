@@ -12,6 +12,7 @@ import RateLimitModal from './components/RateLimitModal';
 import SettingsModal from './components/SettingsModal';
 import EditCategoryModal from './components/EditCategoryModal';
 import ConfirmationModal from './components/ConfirmationModal'; // Import new modal
+import EditPointModal from './components/EditPointModal';
 import { getIsochrone, getCurrentMinuteRequestCount, getCurrentDailyRequestCount } from './services/apiService';
 import { 
   INITIAL_TRAVEL_TIME_MINUTES,
@@ -56,6 +57,10 @@ const App: React.FC = () => {
   
   const [isEditCategoryModalOpen, setIsEditCategoryModalOpen] = useState<boolean>(false);
   const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null);
+
+  // State for Edit Point Modal
+  const [isEditPointModalOpen, setIsEditPointModalOpen] = useState<boolean>(false);
+  const [pointToEdit, setPointToEdit] = useState<Point | null>(null);
 
   // State for Confirmation Modal
   const [confirmationModalState, setConfirmationModalState] = useState<{
@@ -287,22 +292,27 @@ const App: React.FC = () => {
     setCategories(prev => prev.map(c => c.id === id ? { ...c, isVisible: !c.isVisible } : c));
   };
   
-  const handleDeletePoint = (id: string) => {
+  const handleDeletePoint = (id: string, onConfirmCallback?: () => void) => {
     const pointToDelete = points.find(p => p.id === id);
     if (!pointToDelete) return;
 
-    setConfirmationModalState({
-      isOpen: true,
-      title: 'Delete Point',
-      message: `Are you sure you want to delete the point "${pointToDelete.name || `Point ID: ${pointToDelete.id.substring(0,6)}`}"? This action cannot be undone.`,
-      onConfirmAction: () => {
+    const deleteAction = () => {
         setPoints(prev => prev.filter(p => p.id !== id));
         setIsochroneResults(prevIso => {
             const newIso = {...prevIso};
             delete newIso[id];
             return newIso;
         });
-      }
+        if (onConfirmCallback) {
+            onConfirmCallback();
+        }
+    };
+
+    setConfirmationModalState({
+      isOpen: true,
+      title: 'Delete Point',
+      message: `Are you sure you want to delete the point "${pointToDelete.name || `Point ID: ${pointToDelete.id.substring(0,6)}`}"? This action cannot be undone.`,
+      onConfirmAction: deleteAction
     });
   };
 
@@ -387,6 +397,25 @@ const App: React.FC = () => {
     );
     handleCloseEditCategoryModal();
   };
+  
+  const handleOpenEditPointModal = (point: Point) => {
+    setPointToEdit(point);
+    setIsEditPointModalOpen(true);
+  };
+
+  const handleCloseEditPointModal = () => {
+    setPointToEdit(null);
+    setIsEditPointModalOpen(false);
+  };
+
+  const handleSaveEditedPoint = (id: string, categoryId: string, name?: string) => {
+    setPoints(prevPoints =>
+      prevPoints.map(p =>
+        p.id === id ? { ...p, categoryId, name: name || undefined } : p
+      )
+    );
+    handleCloseEditPointModal();
+  };
 
   const handleExecuteConfirmation = () => {
     if (confirmationModalState.onConfirmAction) {
@@ -405,6 +434,8 @@ const App: React.FC = () => {
       if (event.key === 'Escape') {
         if (confirmationModalState.isOpen) {
           handleCloseConfirmationModal();
+        } else if (isEditPointModalOpen) {
+            handleCloseEditPointModal();
         } else if (isEditCategoryModalOpen) {
           handleCloseEditCategoryModal();
         } else if (isSettingsModalOpen) {
@@ -432,7 +463,9 @@ const App: React.FC = () => {
       isEditCategoryModalOpen, 
       handleCloseEditCategoryModal,
       confirmationModalState.isOpen,
-      handleCloseConfirmationModal
+      handleCloseConfirmationModal,
+      isEditPointModalOpen,
+      handleCloseEditPointModal
     ]);
 
 
@@ -455,7 +488,7 @@ const App: React.FC = () => {
           onToggleCategoryVisibility={handleToggleCategoryVisibility}
           onTogglePointVisibility={handleTogglePointVisibility}
           onDeleteCategory={handleDeleteCategory}
-          onDeletePoint={handleDeletePoint}
+          onDeletePoint={(id) => handleDeletePoint(id)}
           onOpenEditCategoryModal={handleOpenEditCategoryModal}
         />
         <main className="flex-1 h-full relative z-0">
@@ -464,6 +497,7 @@ const App: React.FC = () => {
             categories={categories}
             isochrones={isochroneResults}
             onMapClick={handleMapClick}
+            onEditPoint={handleOpenEditPointModal}
           />
         </main>
       </div>
@@ -504,6 +538,16 @@ const App: React.FC = () => {
           categoryToEdit={categoryToEdit}
           onClose={handleCloseEditCategoryModal}
           onSaveCategory={handleSaveEditedCategory}
+        />
+      )}
+
+      {isEditPointModalOpen && pointToEdit && (
+        <EditPointModal
+            pointToEdit={pointToEdit}
+            categories={categories}
+            onClose={handleCloseEditPointModal}
+            onSavePoint={handleSaveEditedPoint}
+            onDeletePoint={(id) => handleDeletePoint(id, handleCloseEditPointModal)}
         />
       )}
 

@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { MapContainer, TileLayer, Marker, Polygon, useMapEvents, Popup } from 'react-leaflet';
+import React, { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Polygon, useMap, useMapEvents, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import type { Point, Category, IsochroneFetchResult } from '../types';
 import type * as GeoJSON from 'geojson'; // Import GeoJSON namespace
@@ -14,6 +14,25 @@ const createEmojiIcon = (emoji: string, color: string): L.DivIcon => {
     iconSize: [30, 30],
     iconAnchor: [15, 30], // Center bottom of the emoji
   });
+};
+
+// Component to fix map rendering issue on initial load in flexbox layouts.
+// This is a common workaround for a bug where the map doesn't fill its container.
+const MapResizeFix = () => {
+  const map = useMap();
+  useEffect(() => {
+    // A slight delay ensures the container has its final size before Leaflet calculates tile positions.
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
+
+    // Cleanup function to clear the timeout if the component unmounts
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [map]); // Reruns if map instance changes
+
+  return null; // This component does not render anything
 };
 
 interface MapClickHandlerProps {
@@ -111,6 +130,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ points, categories, isochro
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
+      <MapResizeFix />
       <MapClickHandler onMapClick={onMapClick} />
       <MapStateSaver />
       

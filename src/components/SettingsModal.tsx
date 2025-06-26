@@ -57,11 +57,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       <div className="bg-slate-700 p-6 rounded-lg shadow-xl w-full max-w-lg text-gray-200">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-sky-300">
-            {isInitialSetup ? 'API Key Configuration Required' : 'Settings'}
+            {isInitialSetup ? 'Configuration Required' : 'Settings'}
           </h2>
           {!isInitialSetup && (
             <button 
-              onClick={onClose} 
+              onClick={onClose}
               className="text-slate-400 hover:text-slate-200 text-2xl" 
               aria-label="Close settings modal"
             >
@@ -82,7 +82,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
         <div className="space-y-6">
           <div>
-            <h3 className="text-md font-medium text-slate-300 mb-2">Openrouteservice API Key</h3>
+            <h3 className="text-md font-medium text-slate-300 mb-2">API Key</h3>
             <div className="p-3 bg-slate-600 rounded">
               <input
                 type="text"
@@ -90,7 +90,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 onChange={(e) => setApiKeyInput(e.target.value)}
                 placeholder="Enter your API key"
                 className="w-full p-2.5 border border-slate-500 rounded bg-slate-800 text-white focus:ring-2 focus:ring-sky-500 outline-none"
-                aria-label="Openrouteservice API Key"
+                aria-label="API Key"
               />
               {!isInitialSetup && (
                  <p className="text-xs text-slate-400 mt-2">

@@ -82,6 +82,9 @@ const App: React.FC = () => {
             if (migratedCat.isVisible === undefined) { 
                 migratedCat.isVisible = true;
             }
+            if (migratedCat.isCollapsed === undefined) {
+                migratedCat.isCollapsed = false; // Default to expanded for backward compatibility
+            }
             return migratedCat;
         })
     );
@@ -97,6 +100,7 @@ const App: React.FC = () => {
             icon: '📍',
             isVisible: true,
             generateIsochrones: true,
+            isCollapsed: false,
         };
         setCategories([defaultCategory]);
         localStorage.setItem(LOCALSTORAGE_HAS_INITIALIZED_CATEGORIES_KEY, 'true');
@@ -262,7 +266,8 @@ const App: React.FC = () => {
       color, 
       icon, 
       isVisible: true,
-      generateIsochrones 
+      generateIsochrones,
+      isCollapsed: false,
     };
     setCategories(prev => [...prev, newCategory]);
   };
@@ -292,6 +297,10 @@ const App: React.FC = () => {
     setCategories(prev => prev.map(c => c.id === id ? { ...c, isVisible: !c.isVisible } : c));
   };
   
+  const handleToggleCategoryCollapse = (id: string) => {
+    setCategories(prev => prev.map(c => c.id === id ? { ...c, isCollapsed: !c.isCollapsed } : c));
+  };
+
   const handleDeletePoint = (id: string, onConfirmCallback?: () => void) => {
     const pointToDelete = points.find(p => p.id === id);
     if (!pointToDelete) return;
@@ -486,6 +495,7 @@ const App: React.FC = () => {
           points={points}
           onAddCategory={handleAddCategory}
           onToggleCategoryVisibility={handleToggleCategoryVisibility}
+          onToggleCategoryCollapse={handleToggleCategoryCollapse}
           onTogglePointVisibility={handleTogglePointVisibility}
           onDeleteCategory={handleDeleteCategory}
           onDeletePoint={(id) => handleDeletePoint(id)}

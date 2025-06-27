@@ -9,6 +9,7 @@ export interface Category {
   icon: string; // Emoji
   isVisible: boolean;
   generateIsochrones: boolean; // New property
+  isCollapsed?: boolean; // New property for collapsible state
 }
 
 export interface Point {

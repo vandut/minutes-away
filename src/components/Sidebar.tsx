@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Category, Point } from '../types';
 import AddCategoryModal from './AddCategoryModal';
 
@@ -27,6 +27,17 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenEditCategoryModal
 }) => {
   const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
+  const [isInitialRender, setIsInitialRender] = useState(true);
+
+  useEffect(() => {
+    // Set a timeout to allow the initial render to complete without animations.
+    // After the timeout, transition classes will be applied for user interactions.
+    const timer = setTimeout(() => {
+        setIsInitialRender(false);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <aside className="w-[350px] bg-slate-800 text-gray-200 p-4 h-full flex flex-col">
@@ -50,7 +61,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 aria-expanded={!category.isCollapsed}
               >
                 <div className="flex items-center space-x-2 flex-grow min-w-0">
-                  <span className={`inline-block text-2xl text-slate-400 transform transition-transform duration-200 ${category.isCollapsed ? '' : 'rotate-90'}`}>
+                  <span className={`inline-block text-2xl text-slate-400 transform ${!isInitialRender ? 'transition-transform duration-200' : ''} ${category.isCollapsed ? '' : 'rotate-90'}`}>
                     ›
                   </span>
                   <input
@@ -85,7 +96,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </div>
               </div>
               
-              <div className={`transition-all duration-300 ease-in-out ${category.isCollapsed ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'}`}>
+              <div className={`${!isInitialRender ? 'transition-all duration-300 ease-in-out' : ''} ${category.isCollapsed ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'}`}>
                 <div className="pl-5 pr-3 pb-3">
                     <ul className="pl-6 space-y-1 mt-1">
                       {categoryPoints.map(point => (

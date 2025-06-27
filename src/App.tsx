@@ -343,7 +343,7 @@ const App: React.FC = () => {
     setIsAddPointModalOpen(true);
   };
 
-  const handleAddPoint = (categoryId: string, pointName?: string) => {
+  const handleAddPoint = (categoryId: string, pointName?: string, link?: string, description?: string) => {
     if (newPointCoords) {
       const newPoint: Point = {
         id: Date.now().toString(),
@@ -351,7 +351,9 @@ const App: React.FC = () => {
         lat: newPointCoords.lat,
         lng: newPointCoords.lng,
         isVisible: true,
-        name: pointName
+        name: pointName,
+        link,
+        description,
       };
       setPoints(prev => [...prev, newPoint]);
     }
@@ -417,10 +419,10 @@ const App: React.FC = () => {
     setIsEditPointModalOpen(false);
   };
 
-  const handleSaveEditedPoint = (id: string, categoryId: string, name?: string) => {
+  const handleSaveEditedPoint = (id: string, categoryId: string, name?: string, link?: string, description?: string) => {
     setPoints(prevPoints =>
       prevPoints.map(p =>
-        p.id === id ? { ...p, categoryId, name: name || undefined } : p
+        p.id === id ? { ...p, categoryId, name: name || undefined, link: link || undefined, description: description || undefined } : p
       )
     );
     handleCloseEditPointModal();

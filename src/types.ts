@@ -19,6 +19,8 @@ export interface Point {
   lng: number;
   isVisible: boolean;
   name?: string; // Optional name for the point
+  link?: string;
+  description?: string;
 }
 
 export interface IsochroneFetchResult {

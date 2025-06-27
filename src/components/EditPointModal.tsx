@@ -6,25 +6,29 @@ interface EditPointModalProps {
   pointToEdit: Point;
   categories: Category[];
   onClose: () => void;
-  onSavePoint: (id: string, categoryId: string, name?: string) => void;
+  onSavePoint: (id: string, categoryId: string, name?: string, link?: string, description?: string) => void;
   onDeletePoint: (id: string) => void;
 }
 
 const EditPointModal: React.FC<EditPointModalProps> = ({ pointToEdit, categories, onClose, onSavePoint, onDeletePoint }) => {
   const [name, setName] = useState('');
   const [categoryId, setCategoryId] = useState('');
+  const [link, setLink] = useState('');
+  const [description, setDescription] = useState('');
 
   useEffect(() => {
     if (pointToEdit) {
       setName(pointToEdit.name || '');
       setCategoryId(pointToEdit.categoryId);
+      setLink(pointToEdit.link || '');
+      setDescription(pointToEdit.description || '');
     }
   }, [pointToEdit]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (pointToEdit) {
-      onSavePoint(pointToEdit.id, categoryId, name.trim() || undefined);
+      onSavePoint(pointToEdit.id, categoryId, name.trim() || undefined, link.trim() || undefined, description.trim() || undefined);
     }
   };
   
@@ -67,6 +71,28 @@ const EditPointModal: React.FC<EditPointModalProps> = ({ pointToEdit, categories
                 </option>
               ))}
             </select>
+          </div>
+           <div>
+            <label htmlFor="editPointLink" className="block text-sm font-medium text-slate-300 mb-1">Link (Optional):</label>
+            <input
+              type="url"
+              id="editPointLink"
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              className="w-full p-2.5 border border-slate-500 rounded bg-slate-600 text-white focus:ring-2 focus:ring-sky-500 outline-none"
+              placeholder="https://example.com"
+            />
+          </div>
+          <div>
+            <label htmlFor="editPointDescription" className="block text-sm font-medium text-slate-300 mb-1">Description (Optional):</label>
+            <textarea
+              id="editPointDescription"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full p-2.5 border border-slate-500 rounded bg-slate-600 text-white focus:ring-2 focus:ring-sky-500 outline-none"
+              placeholder="Notes about this location..."
+              rows={3}
+            />
           </div>
           <div className="flex justify-between items-center pt-4">
             <button

@@ -1,20 +1,11 @@
 
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Polygon, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Polygon, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import type { Point, Category, IsochroneFetchResult } from '../types';
 import type * as GeoJSON from 'geojson'; // Import GeoJSON namespace
 import { KRAKOW_CENTER_LATLNG, INITIAL_MAP_ZOOM, LOCALSTORAGE_MAP_CENTER_KEY, LOCALSTORAGE_MAP_ZOOM_KEY } from '../constants';
-
-// Helper for custom emoji markers
-const createEmojiIcon = (emoji: string, color: string): L.DivIcon => {
-  return L.divIcon({
-    html: `<span style="font-size: 24px; text-shadow: 0 0 2px #000, 0 0 2px #000, 0 0 3px ${color};">${emoji}</span>`,
-    className: 'leaflet-emoji-icon', // Necessary for Leaflet, can be empty string
-    iconSize: [30, 30],
-    iconAnchor: [15, 30], // Center bottom of the emoji
-  });
-};
+import PointMarker from './PointMarker';
 
 // Component to fix map rendering issue on initial load in flexbox layouts.
 // This is a common workaround for a bug where the map doesn't fill its container.
@@ -139,20 +130,13 @@ const MapComponent: React.FC<MapComponentProps> = ({ points, categories, isochro
         const category = categories.find(c => c.id === point.categoryId);
         if (!category || !point.isVisible || !category.isVisible) return null;
 
-        const icon = createEmojiIcon(category.icon, category.color);
-        
         return (
-          <Marker
+          <PointMarker
             key={point.id}
-            position={[point.lat, point.lng]}
-            icon={icon}
-            eventHandlers={{
-              click: () => {
-                onEditPoint(point);
-              },
-            }}
-          >
-          </Marker>
+            point={point}
+            category={category}
+            onEditPoint={onEditPoint}
+          />
         );
       })}
 

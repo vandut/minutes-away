@@ -5,17 +5,19 @@ import type { Category } from '../types';
 interface AddPointModalProps {
   categories: Category[];
   onClose: () => void;
-  onAddPoint: (categoryId: string, pointName?: string) => void;
+  onAddPoint: (categoryId: string, pointName?: string, link?: string, description?: string) => void;
 }
 
 const AddPointModal: React.FC<AddPointModalProps> = ({ categories, onClose, onAddPoint }) => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>(categories[0]?.id || '');
   const [pointName, setPointName] = useState<string>('');
+  const [link, setLink] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedCategoryId) {
-      onAddPoint(selectedCategoryId, pointName.trim() || undefined);
+      onAddPoint(selectedCategoryId, pointName.trim() || undefined, link.trim() || undefined, description.trim() || undefined);
     }
   };
 
@@ -69,6 +71,28 @@ const AddPointModal: React.FC<AddPointModalProps> = ({ categories, onClose, onAd
                 </option>
               ))}
             </select>
+          </div>
+          <div>
+            <label htmlFor="pointLink" className="block text-sm font-medium text-slate-300 mb-1">Link (Optional):</label>
+            <input
+              type="url"
+              id="pointLink"
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              className="w-full p-2.5 border border-slate-500 rounded bg-slate-600 text-white focus:ring-2 focus:ring-sky-500 outline-none"
+              placeholder="https://example.com"
+            />
+          </div>
+          <div>
+            <label htmlFor="pointDescription" className="block text-sm font-medium text-slate-300 mb-1">Description (Optional):</label>
+            <textarea
+              id="pointDescription"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full p-2.5 border border-slate-500 rounded bg-slate-600 text-white focus:ring-2 focus:ring-sky-500 outline-none"
+              placeholder="Notes about this location..."
+              rows={3}
+            />
           </div>
           <div className="flex justify-end space-x-3 pt-4">
             <button
